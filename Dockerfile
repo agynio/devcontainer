@@ -16,7 +16,7 @@ RUN set -eux; \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" > /etc/apt/sources.list.d/docker.list; \
     apt-get update; \
     apt-get install -y --no-install-recommends docker-ce-cli; \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
 # Install Nix (single-user, non-daemon) and ensure it's sourced via /etc/profile.d/nix.sh
 RUN set -eux; \
@@ -41,4 +41,3 @@ RUN bash -lc '. /etc/profile.d/nix.sh; nix --version' \
 
 # Default shell
 SHELL ["/bin/bash", "-lc"]
-
