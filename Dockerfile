@@ -18,6 +18,7 @@ RUN set -eux; \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
 ENV HOME=/root
+ENV NIX_CONFIG="experimental-features = nix-command flakes\nbuild-users-group ="
 
 # Install Nix (single-user, non-daemon) and ensure it's sourced via /etc/profile.d/nix.sh
 RUN set -eux; \
@@ -32,7 +33,6 @@ RUN set -eux; \
       '  . "$HOME/.nix-profile/etc/profile.d/nix.sh"' \
       'fi' \
       'export PATH="$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:$PATH"' \
-      'export NIX_CONFIG="experimental-features = nix-command flakes"' \
       > /etc/profile.d/nix.sh
 
 # Ensure PATH includes Nix binaries for non-login shells as well
