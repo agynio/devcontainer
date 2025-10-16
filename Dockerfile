@@ -18,7 +18,6 @@ RUN set -eux; \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
 ENV HOME=/root
-ENV NIX_CONFIG="experimental-features = nix-command flakes\nbuild-users-group ="
 
 # Install Nix (single-user, non-daemon) and ensure it's sourced via /etc/profile.d/nix.sh
 RUN set -eux; \
@@ -27,6 +26,7 @@ RUN set -eux; \
     printf '%s\n' \
       'experimental-features = nix-command flakes' \
       'build-users-group =' \
+      'sandbox = false' \
       > /etc/nix/nix.conf; \
     curl -fsSL https://nixos.org/nix/install -o /tmp/install-nix.sh; \
     sh /tmp/install-nix.sh --no-daemon; \
