@@ -9,8 +9,7 @@ RUN set -eux; \
       ca-certificates \
       curl \
       xz-utils \
-      gnupg \
-      lsb-release; \
+      gnupg; \
     mkdir -p /etc/apt/keyrings; \
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg; \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" > /etc/apt/sources.list.d/docker.list; \
@@ -18,8 +17,11 @@ RUN set -eux; \
     apt-get install -y --no-install-recommends docker-ce-cli; \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
+ENV HOME=/root
+
 # Install Nix (single-user, non-daemon) and ensure it's sourced via /etc/profile.d/nix.sh
 RUN set -eux; \
+    mkdir -m 0755 /nix && chown root /nix; \
     curl -fsSL https://nixos.org/nix/install -o /tmp/install-nix.sh; \
     sh /tmp/install-nix.sh --no-daemon; \
     rm -f /tmp/install-nix.sh; \
@@ -30,14 +32,17 @@ RUN set -eux; \
       '  . "$HOME/.nix-profile/etc/profile.d/nix.sh"' \
       'fi' \
       'export PATH="$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:$PATH"' \
+      'export NIX_CONFIG="experimental-features = nix-command flakes"' \
       > /etc/profile.d/nix.sh
 
 # Ensure PATH includes Nix binaries for non-login shells as well
 ENV PATH=/root/.nix-profile/bin:/nix/var/nix/profiles/default/bin:${PATH}
 
+# Ensure PATH includes Nix binaries for non-login shells as well
+ENV PATH=/root/.nix-profile/bin:/nix/var/nix/profiles/default/bin:${PATH}
+
 # Verify installations
-RUN bash -lc '. /etc/profile.d/nix.sh; nix --version' \
- && docker --version
+RUN bash -lc 'nix --version && docker --version'
 
 # Default shell
 SHELL ["/bin/bash", "-lc"]
