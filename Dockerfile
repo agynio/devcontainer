@@ -19,26 +19,15 @@ RUN set -eux; \
 
 ENV HOME=/root
 
-# Install Nix (single-user, non-daemon) and ensure it's sourced via /etc/profile.d/nix.sh
+# Install Nix using Determinate Systems installer (no init/systemd), sandbox disabled
 RUN set -eux; \
-    mkdir -m 0755 /nix && chown root /nix; \
-    mkdir -p /etc/nix; \
-    printf '%s\n' \
-      'experimental-features = nix-command flakes' \
-      'build-users-group =' \
-      'sandbox = false' \
-      > /etc/nix/nix.conf; \
-    curl -fsSL https://nixos.org/nix/install -o /tmp/install-nix.sh; \
-    NIX_INSTALLER_NO_SECCOMP=1 sh /tmp/install-nix.sh --no-daemon; \
-    rm -f /tmp/install-nix.sh; \
-    mkdir -p /etc/profile.d; \
-    printf '%s\n' \
-      '# Nix profile setup' \
-      'if [ -e "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then' \
-      '  . "$HOME/.nix-profile/etc/profile.d/nix.sh"' \
-      'fi' \
-      'export PATH="$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:$PATH"' \
-      > /etc/profile.d/nix.sh
+    mkdir -p /nix /etc/nix; chmod 0755 /nix; \
+    curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install linux --init none --no-confirm --extra-conf 'sandbox = false'
+
+# Add profile hook to source Nix in shells and verify
+RUN printf '. /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh\n' > /etc/profile.d/nix.sh
+RUN . /etc/profile.d/nix.sh && nix --version
+RUN docker --version
 
 # Ensure PATH includes Nix binaries for non-login shells as well
 ENV PATH=/root/.nix-profile/bin:/nix/var/nix/profiles/default/bin:${PATH}
