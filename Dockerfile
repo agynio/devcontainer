@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu:24.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -26,8 +26,7 @@ RUN set -eux; \
 
 # Add profile hook to source Nix in shells and verify
 RUN printf '. /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh\n' > /etc/profile.d/nix.sh
-RUN . /etc/profile.d/nix.sh && nix --version
-RUN docker --version
+
 
 # Ensure PATH includes Nix binaries for non-login shells as well
 ENV PATH=/root/.nix-profile/bin:/nix/var/nix/profiles/default/bin:${PATH}
@@ -36,7 +35,7 @@ ENV PATH=/root/.nix-profile/bin:/nix/var/nix/profiles/default/bin:${PATH}
 ENV PATH=/root/.nix-profile/bin:/nix/var/nix/profiles/default/bin:${PATH}
 
 # Verify installations
-RUN bash -lc 'nix --version && docker --version'
+RUN bash -lc '. /etc/profile.d/nix.sh && nix --version && docker --version'
 
 # Default shell
 SHELL ["/bin/bash", "-lc"]
