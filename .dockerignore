@@ -1,0 +1,12 @@
+# Reduce build context
+.git
+.github
+README.md
+LICENSE
+**/*.md
+*.log
+node_modules
+.DS_Store
+tmp
+dist
+build
