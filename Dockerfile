@@ -32,7 +32,6 @@ RUN printf '. /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh\n' > /et
 ENV PATH=/root/.nix-profile/bin:/nix/var/nix/profiles/default/bin:${PATH}
 
 # Ensure PATH includes Nix binaries for non-login shells as well
-ENV PATH=/root/.nix-profile/bin:/nix/var/nix/profiles/default/bin:${PATH}
 
 # Verify installations
 RUN bash -lc '. /etc/profile.d/nix.sh && nix --version && docker --version'

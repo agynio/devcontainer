@@ -55,7 +55,7 @@ jobs:
 
   build-arm64:
     name: Build (arm64)
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-24.04-arm64
     outputs:
       digest: ${{ steps.build.outputs.digest }}
     steps:
@@ -132,4 +132,4 @@ jobs:
           for t in $TAGS; do
             CREATE_ARGS="$CREATE_ARGS -t $t"
           done
-          docker buildx imagetools create $CREATE_ARGS "$AMD64_DIGEST" "$ARM64_DIGEST"
+          docker buildx imagetools create $CREATE_ARGS ghcr.io/${{ github.repository }}@"$AMD64_DIGEST" ghcr.io/${{ github.repository }}@"$ARM64_DIGEST"
