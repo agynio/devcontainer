@@ -29,7 +29,7 @@ RUN set -eux; \
       'sandbox = false' \
       > /etc/nix/nix.conf; \
     curl -fsSL https://nixos.org/nix/install -o /tmp/install-nix.sh; \
-    sh /tmp/install-nix.sh --no-daemon; \
+    NIX_INSTALLER_NO_SECCOMP=1 sh /tmp/install-nix.sh --no-daemon; \
     rm -f /tmp/install-nix.sh; \
     mkdir -p /etc/profile.d; \
     printf '%s\n' \
