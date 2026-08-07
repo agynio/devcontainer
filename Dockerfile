@@ -9,7 +9,8 @@ RUN set -eux; \
   ca-certificates \
   curl \
   xz-utils \
-  gnupg; \
+  gnupg \
+  zsh; \
   mkdir -p /etc/apt/keyrings; \
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg; \
   echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" > /etc/apt/sources.list.d/docker.list; \
@@ -27,6 +28,19 @@ RUN set -eux; \
 # Add profile hook to source Nix in shells and verify
 RUN printf '. /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh\n' > /etc/profile.d/nix.sh
 
+# zsh is the login shell; SHELL is what a terminal session execs
+ENV SHELL=/usr/bin/zsh
+RUN set -eux; \
+  chsh -s /usr/bin/zsh root; \
+  printf "emulate sh -c 'source /etc/profile'\n" >> /etc/zsh/zprofile; \
+  printf '%s\n' \
+  'HISTFILE=~/.zsh_history' \
+  'HISTSIZE=10000' \
+  'SAVEHIST=10000' \
+  'setopt hist_ignore_dups inc_append_history' \
+  "PROMPT='%n@%m %~ %# '" \
+  > /root/.zshrc
+
 
 # Ensure PATH includes Nix binaries for non-login shells as well
 ENV PATH=/root/.nix-profile/bin:/nix/var/nix/profiles/default/bin:${PATH}
@@ -35,8 +49,9 @@ ENV PATH=/root/.nix-profile/bin:/nix/var/nix/profiles/default/bin:${PATH}
 
 # Verify installations
 RUN bash -lc '. /etc/profile.d/nix.sh && nix --version && docker --version'
+RUN zsh -lc 'nix --version && docker --version'
 
-# Default shell
+# Build-time shell for RUN; the runtime default is SHELL=/usr/bin/zsh above
 SHELL ["/bin/bash", "-lc"]
 
 # Default CMD
