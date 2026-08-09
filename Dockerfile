@@ -20,6 +20,11 @@ RUN set -eux; \
 
 ENV HOME=/root
 
+# ubuntu:24.04 names no locale, and glibc's C fallback cannot decode UTF-8:
+# zsh's line editor renders every byte of a typed accent or Cyrillic letter as
+# <ffffffff>. C.UTF-8 is built into glibc 2.39 — no locales package needed.
+ENV LANG=C.UTF-8
+
 # Install Nix using Determinate Systems installer (no init/systemd), sandbox disabled
 RUN set -eux; \
   mkdir -p /nix /etc/nix; chmod 0755 /nix; \
